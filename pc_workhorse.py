@@ -452,21 +452,23 @@ def locuszoom(assoc_loc, chromosome,range_start_bp,range_end_bp,label, title, re
                   '--chr',str(chromosome),'--start', str(range_start_bp),
                   '--end', str(range_end_bp), '--pvalcol','P',
                   '--markercol','SNP','--delim','whitespace', '--prefix',
-		  label,'--plotonly','--verbose','--no-date',
+                  label,'--plotonly','--verbose','--no-date',
                   '--snpset','None', '--cache', ld_cache,
                   'geneFontSize=.6',
                   #'showRecomb=FALSE',
                   'rfrows=7',
-                  'title='+title,
+                  'title='+title]#,
                   #'ylab=-log(p-value)']#,
-                  'postlude='+POSTLUDE]
+                  #'postlude='+POSTLUDE]
 ##                  '--source','1000G_Nov2010',
 ##                  '--build','hg19','--pop','EUR']
+    #if loopcount < 1 and '~' in label:
+    #    lz_cl_args.extend(['refsnpTextColor=transparent'])
     if build == 'hg19':
         lz_cl_args.extend(['--source','1000G_Nov2010',
                            '--build','hg19','--pop','EUR',])#,'rfrows=1'])
-        if str(chromosome) in ['23', '24']:
-            lz_cl_args.append('--no-ld')
+        #if str(chromosome) in ['23', '24']:
+         #   lz_cl_args.append('--no-ld')
 ##    if build == 'hg18':
 ##        lz_cl_args.extend(['--source','1000G_June2010',
 ##                           '--build','hg18','--pop','EUR','showRecomb=FALSE'])

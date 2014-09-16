@@ -9,10 +9,12 @@ import os
 import sys
 import getopt
 import time
-import pc_toolbox
-import fix_it
 from datetime import datetime, timedelta
 from collections import namedtuple
+sys.path.insert(0, '/home/jkb4y/h4t1/programs/plink_python/')
+import pc_toolbox
+import fix_it
+
 
 
 global log_folder, summary_name, run_info, freq_loc
@@ -35,7 +37,7 @@ FREQ_LOC = '/home/jkb4y/work/data/UK_12212011/UK_control.freq'
 #Defines path location of original, un map_adapted map file
 MAP_LOC = '/home/jkb4y/work/data/UK_12212011/copy_of_UK.bim'
 
-BUILD = 'hg18'
+BUILD = 'hg19'
 
 #***************************************************
 
@@ -277,9 +279,10 @@ USAGE: parse_log.py [FLAG] OBJECT
     -f, --freq          path of allele freqency file                        {1}
     -s, --summary       desired name of summary file (no extension)         {2}
     -r, --runinfo       desired name of file containing SNP counts (no ext) {3}
+    -b, --build         build of rs snps and positions in logs              {4}
     -h, --help          display this usage string
        
-    '''.format(LOG_FOLDER,FREQ_LOC,SUMMARY_NAME,RUN_INFO))
+    '''.format(LOG_FOLDER,FREQ_LOC,SUMMARY_NAME,RUN_INFO, BUILD))
 
 def cl_arguments(argv):
     '''
@@ -297,7 +300,7 @@ def cl_arguments(argv):
 ##    repair_loc = None
     
     try: 
-        opts, args = getopt.getopt(argv, "hl:s:r:f:",
+        opts, args = getopt.getopt(argv, "hl:s:r:f:b:",
                                    ["help","logfolder=","summary=",
                                     "runinfo=","freq=","build="])
     except getopt.GetoptError:
@@ -311,7 +314,7 @@ def cl_arguments(argv):
             log_folder = arg
         elif opt in ("-f","--freq"):
             freq_loc = arg
-        elif opt in ("--build"):
+        elif opt in ("-b","--build"):
             build = arg
 ##        elif opt in ("-m","--map"):
 ##            map_loc = arg

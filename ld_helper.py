@@ -7,15 +7,16 @@ Created on Nov 2, 2011
 '''
 import os
 import subprocess
-
-
+import sys
+sys.path.insert(0, '/home/jkb4y/h4t1/programs/plink_python/')
 import pc_toolbox
-
-REGION_LOC = '/home/jkb4y/work/data/Region_Lists/hg19/T1D_regions_hg19_05242012_sigsOnly.txt'
+#REGION_LOC = '/h2/t74/cphgdesk/share/cphg_OnengutLab/Jessica/Projects/IMCHIP/Region_Lists/T1D_regions_hg19_04152013_11p15.5.txt'
+REGION_LOC = '/h2/t74/cphgdesk/share/cphg_OnengutLab/Jessica/Projects/IMCHIP/Region_Lists/T1D_regions_hg19_04152013.txt'
 #REGION_LOC = '/home/jkb4y/work/data/Region_Lists/hg18/T1D_regions_chr1.txt'
-BFILE = '/home/jkb4y/work/data/2012Feb1/intersect_fam_uk/hg19/intersect'
-OUT_FOLDER = '/home/jkb4y/work/results/Intersection/LD/'
-
+BFILE = '/h2/t74/cphgdesk/share/cphg_OnengutLab/Jessica/Projects/IMCHIP/Intersect_SNP_list/2012Oct17/CaseControl/Data/intersect_07232013'
+LDFOLDER = '/h2/t74/cphgdesk/share/cphg_OnengutLab/Jessica/Projects/IMCHIP/Intersect_SNP_list/2012Oct17/eurmeta/eurmeta_LD_07232013/'
+OUTFOLDER = '/h2/t74/cphgdesk/share/cphg_OnengutLab/Jessica/Projects/IMCHIP/Intersect_SNP_list/2012Oct17/CaseControl/CAnalysis_eurmeta_LD_07232013/'
+ASSOC_FOLDER = '/h2/t74/cphgdesk/share/cphg_OnengutLab/Jessica/Projects/IMCHIP/Intersect_SNP_list/2012Oct17/CaseControl/CAnalysis_eurmeta_07232013/'
 
 def read_list(list_loc):
     listy = list()
@@ -86,7 +87,7 @@ def quick_lz(region, cloop, snp, ld, outfolder, assoc_folder, r2, draw_me=True):
 
 def plink_ld(region, bfile, ldfolder, assoc_folder, r2, sum_only=False):
     chromosome = region.chro
-    chrband = region.band
+    chrband = region.ID
     ldfile = chrband + '_r2_{0}'.format(r2)
     #ldfile = 'EVI5_EXPERIMENT_r2_{0}'.format(r2)
     ld_sub = pc_toolbox.chr_folder(ldfolder, chromosome)
@@ -147,28 +148,39 @@ def main_lz(region, outfolder, assoc_folder, snp_list,ld, r2, draw_me=True):
         cloop = cloop + 1
         
 def main():
-    r2 = '0.8'
-    draw_me = True
+    draw_me = False
     sum_only = False
+    MHC = False
     regions = pc_toolbox.create_region_list(REGION_LOC)
     bfile = BFILE
-    ldfolder = '/home/jkb4y/ubs/work/results/Intersection/eurmeta_LD/'
-    outfolder = '/home/jkb4y/ubs/work/results/Intersection/CAnalysis_LD/'
-    assoc_folder = '/home/jkb4y/work/results/Intersection/CAnalysis_eurmeta'
-    tot_loc = os.path.join(ldfolder,'all_regions_r2_{0}.ld'.format(r2))
-    with open(tot_loc, mode="w") as total:
-        ld_title_list = ['CHR_A','BP_A','SNP_A','CHR_B','BP_B','SNP_B','R2']
-        total.write('\t'.join(ld_title_list)+'\n')
-    for region in regions:
-        chrband = region.ID
-        chromosome = region.chro
-        subfolder = pc_toolbox.chr_folder(outfolder, chromosome)
-        assoc_chr_folder = pc_toolbox.chr_folder(assoc_folder, chromosome)
-        ld, snp_loc = plink_ld(region, bfile, ldfolder, assoc_chr_folder, r2, sum_only)
-        copy_to_tot(tot_loc, ld)
-        
-##        lz_ld = ld_for_lz(ld)
-##        main_lz(region, subfolder, assoc_chr_folder, snp_loc,lz_ld, r2, draw_me)
+    #ldfolder = LDFOLDER
+    ldfolder = '/home/jkb4y/ubs/work/results/Intersection_06022014/eurmeta_LD/'
+    #outfolder = OUTFOLDER
+    outfolder = '/home/jkb4y/ubs/work/results/Intersection_06022014/CAnalysis_LD/'
+    assoc_folder = ASSOC_FOLDER
+    #assoc_folder = '/home/jkb4y/work/results/Intersection_06022014/CAnalysis_eurmeta'
+    #for r2 in ['0','0.2','0.4','0.6','0.8']:
+    for r2 in ['0']:
+    #for r2 in ['0','0.2']:
+    #for r2 in ['0.2','0.4']:
+    #for r2 in ['0.8','0.6']:
+    #r2 = '0.8'
+        tot_loc = os.path.join(ldfolder,'all_regions_r2_{0}.ld'.format(r2))
+        with open(tot_loc, mode="w") as total:
+            ld_title_list = ['CHR_A','BP_A','SNP_A','CHR_B','BP_B','SNP_B','R2']
+            total.write('\t'.join(ld_title_list)+'\n')
+        for region in regions:
+            chrband = region.ID
+            chromosome = region.chro
+            subfolder = pc_toolbox.chr_folder(outfolder, chromosome)
+            assoc_chr_folder = pc_toolbox.chr_folder(assoc_folder, chromosome)
+            if chrband == '6p21.32' and not MHC:
+                continue
+            ld, snp_loc = plink_ld(region, bfile, ldfolder, assoc_chr_folder, r2, sum_only)
+            copy_to_tot(tot_loc, ld)
+            
+            lz_ld = ld_for_lz(ld)
+            main_lz(region, subfolder, assoc_chr_folder, snp_loc,lz_ld, r2, draw_me)
         
 
 if __name__=='__main__':

@@ -11,13 +11,15 @@ import os
 
 import fix_it
 
-RegInfo = namedtuple('RegInfo', 'chro,start,end,sym,band,title,ID')
+#RegInfo = namedtuple('RegInfo', 'chro,start,end,sym,band,title,ID')
+RegInfo = namedtuple('RegInfo', 'chro,start,end,title,ID')
 
-REG_CHR_TITLE = 'gene_chr'
+REG_CHR_TITLE = 'chr'
+#REG_CHR_TITLE = 'gene_chr'
 START_TITLE = 'region_start'
 END_TITLE = 'region_end'
-GENE_TITLE = 'gene_symbol'
-BAND_TITLE = 'Chr_band'
+#GENE_TITLE = 'gene_symbol'
+#BAND_TITLE = 'chr_band'
 TITLE_TITLE = 'band_title'
 ID_TITLE='region_id'
 
@@ -55,15 +57,50 @@ JB_SNP_TITLE = 'SNP_LZ_JB'
 IM_SNP_TITLE = 'SNP_IM'
 AP_SNP_TITLE = 'SNP_AP'
 
-
-def read_eqtl_titles(title_line):
+def read_farber_titles(title_line,exon=False):
     title_list = title_line.strip().split()
     a1_index = None
     ci_hi_index = None
     ci_lo_index = None
     or_index = None
     stat_index = None
-##    lz_choice = JB_SNP_TITLE
+    lz_choice = 'EXTREME_LZ'
+    
+    p_index = title_list.index('P')
+    a1_index = title_list.index('A1')
+    or_index = title_list.index('BETA')
+    stat_index = title_list.index('STAT')
+    gene_index = title_list.index('GENE')
+    if exon:
+        exon_index = title_list.index('EXON')
+    lz_index = title_list.index(lz_choice)
+    index_dict = {'p':p_index,
+                  'chr':title_list.index('CHR'),
+                  'pos':title_list.index('BP'),
+                  'snp':title_list.index('SNP'),
+                  'or':or_index,
+                  't':stat_index,
+                  'hi':ci_hi_index,
+                  'lo':ci_lo_index,
+                  'a1':a1_index,
+                  'pvalcol':'P',
+                  'markercol':lz_choice,
+                  'gene':gene_index,
+                  'lz':lz_index}
+    if exon:
+        index_dict['exon']=exon_index
+    return index_dict
+
+
+
+def read_eqtl_titles(title_line, exon=False):
+    title_list = title_line.strip().split()
+    a1_index = None
+    ci_hi_index = None
+    ci_lo_index = None
+    or_index = None
+    stat_index = None
+    lz_choice = JB_SNP_TITLE
 ##    print lz_choice
 ##    print JB_SNP_TITLE
     p_index = title_list.index('P')
@@ -71,6 +108,9 @@ def read_eqtl_titles(title_line):
     or_index = title_list.index('BETA')
     stat_index = title_list.index('STAT')
     gene_index = title_list.index('GENE')
+    if exon:
+        exon_index = title_list.index('EXON')
+    lz_index = title_list.index(lz_choice)
     index_dict = {'p':p_index,
                   'chr':title_list.index('CHR'),
                   'pos':title_list.index('BP'),
@@ -84,9 +124,11 @@ def read_eqtl_titles(title_line):
                   'a1':a1_index,
                   'pvalcol':'P',
                   'markercol':lz_choice,
-                  'gene':gene_index}
+                  'gene':gene_index,
+                  'lz':lz_index}
+    if exon:
+        index_dict['exon']=exon_index
     return index_dict
-
 
 
 
@@ -106,9 +148,11 @@ def create_index_dict(table_loc, table_type, c_interval=.95):
                     index_dict = read_eqtl_titles(line)
                 elif table_type == 'perm':
                     index_dict = read_perm_titles(line)
+                elif table_type == 'farber':
+                    index_dict = read_farber_titles(line)
                 return index_dict, line
 
-def read_perm_titles(title_line):
+def read_perm_titles(title_line, exon=False):
     title_list = title_line.strip().split()
     a1_index = None
 ##    ci_hi_index = None
@@ -117,8 +161,10 @@ def read_perm_titles(title_line):
 ##    stat_index = None
     lz_choice = JB_SNP_TITLE
     p_index =  title_list.index('EMP1')
-    gene_index = title_list.index('GENE')
     np_index = title_list.index('NP')
+    gene_index = title_list.index('GENE')
+    if exon:
+        exon_index = title_list.index('EXON')
     index_dict = {'p':p_index,
                   'chr':title_list.index('CHR'),
                   'pos':title_list.index('BP'),
@@ -135,6 +181,8 @@ def read_perm_titles(title_line):
                   'pvalcol':'EMP1',
                   'markercol':lz_choice,
                   'gene':gene_index}
+    if exon:
+        index_dict['exon']=exon_index
     return index_dict
 
 
@@ -174,6 +222,7 @@ def read_yank_titles(line):
     return yank_indices
 
 def log_folder(output_folder):
+    print output_folder
     log_folder = os.path.join(output_folder, 'logs')
     if not os.path.exists(log_folder):
         os.makedirs(log_folder)
@@ -292,12 +341,12 @@ def read_regional_titles(line):
     reg_chr_col = title_list.index(REG_CHR_TITLE)
     start_col = title_list.index(START_TITLE)
     end_col = title_list.index(END_TITLE)
-    gene_name_col = title_list.index(GENE_TITLE)
-    band_col = title_list.index(BAND_TITLE)
+    #gene_name_col = title_list.index(GENE_TITLE)
+    #band_col = title_list.index(BAND_TITLE)
     title_col = title_list.index(TITLE_TITLE)
     id_col = title_list.index(ID_TITLE)
     reg_indices = {'chr':reg_chr_col,'start':start_col,'end':end_col,
-                   'sym':gene_name_col,'band':band_col,
+                   #'sym':gene_name_col,#'band':band_col,
                    'title':title_col,'ID':id_col}
     return reg_indices
 
@@ -319,7 +368,7 @@ def correct_gene_sym(gene_symbol, chromosome):
     return new_symbol
 
 
-def create_region_list(region_loc):
+def create_region_list(region_loc, expansion=0):
     region_list = list()
     #RegInfo = namedtuple('RegInfo', 'chro,start,end,sym,band,title,ID')
     standardizer = 1
@@ -340,30 +389,34 @@ def create_region_list(region_loc):
                 chromosome = str(line_split[reg_indices['chr']])
                 start_str = line_split[reg_indices['start']]
                 end_str = line_split[reg_indices['end']]
-                band_name = line_split[reg_indices['band']]
+                if not expansion == 0:
+                    start_str = str(float(start_str)-float(expansion))
+                    end_str = str(float(end_str)+float(expansion))
+                #band_name = line_split[reg_indices['band']]
                 title_name = line_split[reg_indices['title']]
                 id_name = line_split[reg_indices['ID']]
 ##                start_float = float(line_split[reg_indices['start']])
 ##                start_int = int(start_float*standardizer)
 ##                end_int = int(float(line_split[reg_indices['end']])*standardizer)
                 #RegInfo = namedtuple('RegInfo', 'chro,start,end,sym,band,title')
-                gene_sym = correct_gene_sym(line_split[reg_indices['sym']],
-                                            chromosome)
+                #gene_sym = correct_gene_sym(line_split[reg_indices['sym']],
+                                            #chromosome)
                 region_tup = RegInfo(chro=chromosome,start=start_str,
-                                     end=end_str,sym=gene_sym,band=band_name,
+                                     end=end_str,#sym=gene_sym,
+                                     #band=band_name,
                                      title=title_name,ID=id_name)
                 #print region_tup
                 region_list.append(region_tup)
                 print region_tup
     return region_list
 
-def create_bp_region_list(region_loc):
-    mb_region_list = create_region_list(region_loc)
+def create_bp_region_list(region_loc, expansion=0):
+    mb_region_list = create_region_list(region_loc, expansion)
     region_list = list()
     for mb_region in mb_region_list:
         region = RegInfo(chro = mb_region.chro, start = int(float(mb_region.start) * 1e6),
                          end = int(float(mb_region.end) *1e6),
-                         band=mb_region.band, sym=mb_region.sym,
+                         #band=mb_region.band, sym=mb_region.sym,
                          ID=mb_region.ID,title=mb_region.title)
         region_list.append(region)
     return region_list
@@ -450,8 +503,8 @@ using the first line of the assocation file
             or_index = title_list.index('OR')
         except ValueError:
             or_index = None
-    if plink_test in ('linear', 'assoc'):
-        or_index = title_list.index('BETA')
+    #if plink_test in ('linear', 'assoc'):
+     #   or_index = title_list.index('BETA')
     if plink_test in ('logistic','linear'):
         stat_index = title_list.index('STAT')
     if c_interval is not None:

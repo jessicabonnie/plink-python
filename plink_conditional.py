@@ -155,7 +155,7 @@ def cl_arguments(argv):
     pheno_loc = PHENO_LOC
     c_interval = None
     chrband = CHRBAND
-    build = 'hg18'
+    build = 'hg19'
     interrupt = False
     
     try: 
@@ -234,9 +234,9 @@ def create_command(script_loc , pheno_tag=None):
     logname = ""
     
     log_start = 'Chr'+chromosome+'_'
-    if refgene is not None:
-        r_cmd = ["--refgene",refgene]
-        cmd_list.extend(r_cmd)
+##    if refgene is not None:
+##        r_cmd = ["--refgene",refgene]
+##        cmd_list.extend(r_cmd)
     if chrband is None:
         log_start = 'Chr'+chromosome+'_'
         if refgene is None:

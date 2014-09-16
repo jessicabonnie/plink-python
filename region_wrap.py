@@ -20,7 +20,7 @@ global bp_form
 global condition_list_folder
 global interrupt
 
-BUILD = 'hg18'
+BUILD = 'hg19'
 REGION_LOC = None
 #'/home/jkb4y/work/data/Region_Lists/hg18/Chromosomes.txt'
 CONDITION_LIST_FOLDER = None
@@ -164,8 +164,8 @@ def write_command(region, pc_cmdlist):
     chromosome = region.chro
     start = region.start
     end = region.end
-    gene = region.sym
-    band = region.band
+    ID = region.ID
+    title = region.title
     #start with a call to plink_conditional.py
     cmd_list = ["python plink_conditional.py"]
     cmd_list.extend(pc_cmdlist)
@@ -181,10 +181,10 @@ def write_command(region, pc_cmdlist):
     end_cmd = [pos_end_flag, end]
     cmd_list.extend(end_cmd)
     #include refgene information
-    rg_cmd = ['--refgene',gene]
-    cmd_list.extend(rg_cmd)
+##    rg_cmd = ['--refgene',gene]
+##    cmd_list.extend(rg_cmd)
     #include chrband information
-    cb_cmd = ['--chrband',band]
+    cb_cmd = ['--chrband',ID]
     cmd_list.extend(cb_cmd)
     #include condition-list folder information
     if interrupt is not None:
@@ -192,7 +192,7 @@ def write_command(region, pc_cmdlist):
          cl_cmd = ["--condition-list",cl]
          cmd_list.extend(cl_cmd)
     elif condition_list_folder is not None:
-         cl_filename = band + '.txt'
+         cl_filename = ID + '.txt'
 ##       cl_filename = 'Chr'+chromosome+'_'+gene+'.txt'
          cl_loc = os.path.join(condition_list_folder,cl_filename)
          cl_cmd = ["--condition-list",cl_loc]
